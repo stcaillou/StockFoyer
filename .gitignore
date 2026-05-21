@@ -49,16 +49,6 @@ docker-compose.override.yml
 .env
 
 # ============
-# Data & Uploads
-# ============
-data_foyer/
-uploads/
-*.csv
-*.json
-*.sqlite
-*.db
-
-# ============
 # Logs & Temp
 # ============
 *.log

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Stock - Foyer</title>
+
+    <style>
+        .row-top {
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+
+        .row-top .card {
+            flex: 0 0 300px;
+        }
+
+
+        .row-top .card:nth-child(2) {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 18px;
+            background: #f8fafc;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .drop-zone:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .drop-zone.dragover {
+            border-color: #2563eb;
+            background: #dbeafe;
+            transform: scale(1.01);
+        }
+
+        .upload-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+        }
+
+        .upload-text {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            color: #374151;
+        }
+
+        .upload-text span {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .upload-btn {
+            margin-top: 18px;
+            width: 100%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #1f2937;
+            padding: 30px;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            font-size: 2rem;
+            color: #111827;
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            color: #374151;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            transition: 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-danger {
+            background: #ff8e8e;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff4f4f;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        #stock-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
+        }
+
+        .element_stock {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+            transition: transform 0.15s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .element_stock:hover {
+            transform: translateY(-3px);
+        }
+
+        .stock-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .stock-info {
+            color: #6b7280;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .badge-ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-warning-2 {
+            background: #fec7c7;
+            color: #92400e;
+        }
+
+        .badge-type {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+
+        .modal {
+            overflow-y: auto;
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 24px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            color: #111827;
+        }
+
+        .close {
+            color: #6b7280;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #111827;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            #stock-list {
+                grid-template-columns: 1fr;
+            }
+
+            .row-top {
+                flex-direction: column;
+            }
+
+            .row-top .card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>📦 Gestion de Stock</h1>
+
+    <div class="card">
+        <h3>Dataviz</h3>
+        <iframe id="inlineFrameExample" title="Exemple de cadre intégré" width="100%" height="800"
+            src="https://shiny.collineos.ovh">
+        </iframe>
+    </div>
+
+
+
+    <div class="row-top">
+        <div class="card">
+            <h3>📄 Import facture Metro</h3>
+
+            <form action="/uploadfacture" method="post" enctype="multipart/form-data">
+
+                <label for="file-upload-facture" id="drop-zone-facture" class="drop-zone">
+                    <div class="upload-content">
+
+                        <div class="upload-icon">📁</div>
+
+                        <div class="upload-text">
+                            <strong>Glisse ta facture ici</strong>
+                            <span>ou clique pour sélectionner un fichier</span>
+                        </div>
+
+                        <div id="file-name-facture" class="file-name"></div>
+                    </div>
+
+                    <input type="file" name="uploadFile" id="file-upload-facture" hidden>
+                </label>
+
+                <button class="btn-primary upload-btn" type="submit">
+                    Upload
+                </button>
+
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Factures</h3>
+            <div id="factures-list" style="width: 100%; max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+
+        <div class="card">
+            <h3>📄 Import historique de vente</h3>
+
+            <form action="/uploadventes" method="post" enctype="multipart/form-data">
+
+                <label for="file-upload-vente" id="drop-zone-vente" class="drop-zone">
+
+                    <div class="upload-content">
+
+                        <div class="upload-icon">📁</div>
+
+                        <div class="upload-text">
+                            <strong>Glisse ton historique de vente ici</strong>
+                            <span>ou clique pour sélectionner un fichier</span>
+                        </div>
+
+                        <div id="file-name-vente" class="file-name"></div>
+                    </div>
+
+                    <input type="file" name="uploadFile" id="file-upload-vente" hidden>
+                </label>
+
+                <button class="btn-primary upload-btn" type="submit">
+                    Upload
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+ 
+
+    <div class="card" >
+        <h3>🔍 Recherche</h3>
+
+        <div style="display: flex; flex-direction: row; justify-content: space-between;">
+            <input id="recherche" type="text" placeholder="Rechercher un article..."><button class="btn-primary"
+                style="margin-bottom: 12px; margin-left: 10px;" onclick="socket.emit('manuel_update_stock')">
+                Update manuel
+            </button><button class="btn-primary" style="margin-bottom: 12px; margin-left: 10px;"
+                onclick="socket.emit('add_custom_item', {designation : prompt('Nom de l\'item custom : ')})">
+                Ajout Item Custom
+            </button>
+        </div>
+
+        <div id="stock-list" style="max-height: 600px; overflow-y: auto;"></div>
+    </div>
+
+       <div class="card">
+        <h3>Alerte sur les items suivants :</h3>
+        <!--Ici on affiche les items qui on un stock faible / épuisé, en indiquant le nombre de produit
+        pour remonter au seuil minimum -->
+        <div id="alert_list"  style="max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier l'article</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="editCodeArticle">
+                    <div class="form-group">
+                        <label for="editDesignation">Désignation</label>
+                        <input type="text" id="editDesignation" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="editQuantite">Quantité</label>
+                        <input type="number" id="editQuantite">
+                    </div>
+                    <div class="form-group">
+                        <label for="editNomTpe">Nom TPE</label>
+                        <input type="text" id="editNomTpe">
+                    </div>
+                    <div class="form-group">
+                        <label for="editType">Type</label>
+                        <select id="editType">
+                            <option value="">-- Sélectionner --</option>
+                            <option value="Viennoiseries">Viennoiseries</option>
+                            <option value="Snacks">Snacks</option>
+                            <option value="Confiseries">Confiseries</option>
+                            <option value="Boissons">Boissons</option>
+                            <option value="Glaces">Glaces</option>
+                            <option value="Divers">Divers</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDebitFactor">Debit Factor</label>
+                        <input type="number" id="editDebitFactor" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="editSup">Borne supérieure</label>
+                        <input type="number" id="editSup" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="editInf">Borne inférieure</label>
+                        <input type="number" id="editInf" step="0.01">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelEdit">Annuler</button>
+                <button type="button" class="btn-primary" id="saveEdit">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        const socket = io();
+
+        // Gestion de la modal
+        const modal = document.getElementById("editModal");
+        const span = document.getElementsByClassName("close")[0];
+        const cancelBtn = document.getElementById("cancelEdit");
+        const saveBtn = document.getElementById("saveEdit");
+
+        // Fermer la modal
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        span.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+
+        // Fermer si on clique en dehors de la modal
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Ouvrir la modal avec les données de l'article
+        function openEditModal(stock) {
+            document.getElementById("editCodeArticle").value = stock.code_article;
+            document.getElementById("editDesignation").value = stock.designation;
+            document.getElementById("editQuantite").value = stock.quantite;
+            document.getElementById("editNomTpe").value = stock.nom_tpe || "";
+            document.getElementById("editType").value = stock.type || "";
+            document.getElementById("editDebitFactor").value = stock.debit_factor || 1;
+            document.getElementById("editInf").value = stock.inf || null;
+            document.getElementById("editSup").value = stock.sup || null;
+
+
+            modal.style.display = "block";
+        }
+
+        // Fonction pour gérer la sauvegarde (à compléter)
+        function saveEditHandler() {
+            const codeArticle = document.getElementById("editCodeArticle").value;
+            const quantite = document.getElementById("editQuantite").value;
+            const nomTpe = document.getElementById("editNomTpe").value;
+            const type = document.getElementById("editType").value;
+            const debitFactor = document.getElementById("editDebitFactor").value;
+            const sup = document.getElementById("editSup").value;
+            const inf = document.getElementById("editInf").value;
+
+            // Émettre un événement socket pour sauvegarder les modifications
+            if (type != "" && nomTpe != "") {
+                socket.emit("update_item", {
+                    code_article: codeArticle,
+                    quantite: quantite,
+                    nom_tpe: nomTpe,
+                    type: type,
+                    debit_factor: debitFactor,
+                    sup: sup,
+                    inf: inf,
+                });
+            }
+
+            closeModal();
+        }
+
+        saveBtn.onclick = saveEditHandler;
+
+        socket.on('stock_list_response', (stockList) => {
+            console.log('Liste des stocks reçue :', stockList);
+
+            const stockListElement = document.getElementById('stock-list');
+            stockListElement.innerHTML = '';
+
+            const alertList = document.getElementById("alert_list");
+            alertList.innerHTML = "";
+
+            function addAlert(stock, reason) {
+                const d = document.createElement("div");
+                d.classList.add("element_stock")
+                d.style = "margin-bottom:8px"
+                const p = document.createElement("p");
+
+                p.textContent = `${stock.designation} ${stock.nom_tpe ? "- " + stock.nom_tpe : ""} (${reason})`;
+                d.appendChild(p)
+                document.getElementById("alert_list").appendChild(d);
+            }
+
+            stockList.forEach(stock => {
+
+                    
+
+                const div = document.createElement('div');
+                div.classList.add('element_stock');
+
+                const title = document.createElement('div');
+                title.classList.add('stock-title');
+                title.textContent = stock.designation;
+
+                const info = document.createElement('div');
+                info.classList.add('stock-info');
+                info.innerHTML = `
+                    <strong>Quantité :</strong> ${stock.quantite}<br>
+
+                     
+                `;
+
+                const badgeContainer = document.createElement('div');
+                badgeContainer.classList.add('badge-container');
+                badgeContainer.style.display = 'flex';
+                badgeContainer.style.gap = '8px';
+                badgeContainer.style.flexWrap = 'wrap';
+                badgeContainer.style.marginBottom = '12px';
+
+                if (stock.nom_tpe != null && stock.nom_tpe != "custom") {
+                    const debitBadge = document.createElement('div');
+                    debitBadge.classList.add('badge', 'badge-ok');
+                    debitBadge.textContent = '⚡';
+                    badgeContainer.appendChild(debitBadge);
+                }
+
+                if (stock.type != null) {
+                    const typeBadge = document.createElement('div');
+                    typeBadge.classList.add('badge', 'badge-type');
+
+                    // Emoji par type
+                    const typeEmojis = {
+                        'Viennoiseries': '🥐',
+                        'Snacks': '🍿',
+                        'Confiseries': '🍬',
+                        'Boissons': '🥤',
+                        'Glaces': '🍦'
+                    };
+                    const emoji = typeEmojis[stock.type] || '🏷️';
+                    typeBadge.textContent = `${emoji} ${stock.type}`;
+
+                    badgeContainer.appendChild(typeBadge);
+                }
+
+                if (stock.inf != null || stock.quantite ==0) {
+                    if (stock.quantite == 0) {
+                        const stockBadge = document.createElement('div');
+                        stockBadge.classList.add('badge');
+                        stockBadge.classList.add('badge-warning-2');
+                        stockBadge.textContent = "❌ Stock Epuisé"
+                        badgeContainer.appendChild(stockBadge);
+
+                        if(stock.inf != null){
+                            addAlert(stock, "Stock épuisé il manque : " + stock.inf );
+                        }
+                        else{
+                            addAlert(stock, "Stock épuisé" );
+                        }
+                        
+                    }
+                    else {
+                        if (stock.sup != null && stock.quantite > stock.sup) {
+                            const stockBadge = document.createElement('div');
+                            stockBadge.classList.add('badge');
+                            stockBadge.classList.add('badge-warning');
+                            stockBadge.textContent = "⚠️ Sur stock "
+                            badgeContainer.appendChild(stockBadge);
+                        }
+                        else {
+                            if(stock.quantite < stock.inf){
+                                addAlert(stock, "Stock faible il manque : " + (stock.inf - stock.quantite).toString());
+                            }
+                            const stockBadge = document.createElement('div');
+                            stockBadge.classList.add('badge');
+                            stockBadge.classList.add(stock.quantite > stock.inf ? 'badge-ok' : 'badge-warning');
+                            stockBadge.textContent = stock.quantite > stock.inf ? '📦 Stock OK' : '⚠️ Stock Faible';
+                            badgeContainer.appendChild(stockBadge);
+                        }
+                    }
+                }
+
+                const actions = document.createElement('div');
+                actions.classList.add('actions');
+
+                const button_debit = document.createElement('button');
+                button_debit.textContent = 'Débit';
+                button_debit.classList.add('btn-danger');
+                button_debit.addEventListener('click', () => {
+                    debitItem(stock.code_article);
+                });
+
+                const button_edit = document.createElement('button');
+                button_edit.textContent = 'Modifier';
+                button_edit.classList.add('btn-secondary');
+                button_edit.addEventListener('click', () => {
+                    openEditModal(stock);
+                });
+
+                actions.appendChild(button_debit);
+                actions.appendChild(button_edit);
+
+                /*if (stock.nom_tpe == null) {
+                    const button_bind = document.createElement('button');
+                    button_bind.textContent = 'Bind';
+                    button_bind.classList.add('btn-secondary');
+
+                    button_bind.addEventListener('click', () => {
+                        const nom_tpe = prompt("Nom de l'article sur le TPE");
+                        if (nom_tpe === null) return;
+                        socket.emit("bind_item", {
+                            code_article: stock.code_article,
+                            nom_tpe: nom_tpe
+                        });
+                    });
+
+                    actions.appendChild(button_bind);
+                }*/
+
+                div.appendChild(title);
+                div.appendChild(badgeContainer);
+                div.appendChild(info);
+                div.appendChild(actions);
+
+                stockListElement.appendChild(div);
+            });
+        });
+
+        socket.on('facture_list', (factures_list) => {
+            console.log('Factures reçues :', factures_list);
+
+            const container = document.getElementById('factures-list');
+            container.innerHTML = '';
+
+            factures_list.forEach(facture => {
+                const div = document.createElement('div');
+                div.classList.add('element_stock');
+
+                const title = document.createElement('div');
+                title.classList.add('stock-title');
+                title.textContent = facture.name;
+
+                const link = document.createElement('a');
+                link.href = facture.path;
+                link.textContent = "Ouvrir le PDF";
+                link.target = "_blank";
+                link.style.color = "#2563eb";
+                link.style.fontWeight = "600";
+                link.style.display = "inline-block";
+                link.style.marginTop = "8px";
+
+                div.appendChild(title);
+                div.appendChild(link);
+
+                container.appendChild(div);
+            });
+        });
+
+        socket.on('stock_list_error', (error) => {
+            console.error('Erreur :', error);
+            alert(`Erreur : ${error.error}`);
+        });
+
+        function debitItem(code_article) {
+            socket.emit('debit_item', {
+                code_article: code_article
+            });
+        }
+
+        $("#recherche").on("input", () => {
+            socket.emit('stock_list', {
+                as_like: $("#recherche").val()
+            });
+        });
+
+        socket.emit('stock_list', { as_like: "" });
+        socket.emit('facture_list');
+
+        socket.on("message", () => { console.log("recu") })
+
+    </script>
+
+    <script>
+        function setupDropZone(dropZoneId, fileInputId, fileNameId) {
+            const dropZone = document.getElementById(dropZoneId);
+            const fileInput = document.getElementById(fileInputId);
+            const fileName = document.getElementById(fileNameId);
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('dragover');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('dragover');
+                });
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    fileName.textContent = files[0].name;
+                }
+            });
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    fileName.textContent = fileInput.files[0].name;
+                }
+            });
+        }
+
+        setupDropZone('drop-zone-facture', 'file-upload-facture', 'file-name-facture');
+        setupDropZone('drop-zone-vente', 'file-upload-vente', 'file-name-vente');
+    </script>
+</body>
+
+</html>
